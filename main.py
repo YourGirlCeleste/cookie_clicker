@@ -14,25 +14,35 @@ driver.get("https://orteil.dashnet.org/cookieclicker/")
 def get_cookie_num(cookie_count):
 
         try:
-            cookie_list = cookie_count.text.split(" ")
-        
-        except:
-            cookie_list = str(cookie_count).split(" ")
-        cookie_list[0] = cookie_list[0].split('\n')[0]
-        print(cookie_list)
+            # Make List
+            if '.' in cookie_count.text:
+                cookie_list = cookie_count.text.split("\n")
+                cookie_list[0] = cookie_list[0].replace(" cookies", "")
+                cookie_list[1] = cookie_list[1].replace(" cookies", "")
 
-        if(len(cookie_list) > 1):
-
-            if cookie_list[1] in mill_list:
-
-                mill_int = millify(cookie_list[1])
-                cookie_num = cookie_num * mill_int
-        
             else:
+                cookie_list = cookie_count.text.split(" ")
+                cookie_list[0] = cookie_list[0].split('\n')[0]
 
-                cookie_num = int(cookie_list[0].replace(",", ""))
-        print(cookie_num)
-        return cookie_num
+            print(f"Raw Text: {cookie_count.text}")
+            print(cookie_list)
+
+            if(len(cookie_list) > 1):
+
+                if cookie_list[1] in mill_list:
+
+                    mill_int = millify(cookie_list[1])       
+                    cookie_num = float(cookie_list[0]) * mill_int
+            
+                else:
+
+                    cookie_num = int(cookie_list[0].replace(",", ""))
+                    print(cookie_num)
+            return cookie_num
+
+        except:
+            print('Something went wrong')
+            return 0
 
 def populate_store():
     store_dict = {}
@@ -120,7 +130,7 @@ def click_cookie():
         cookie.click()
 
 def millify(target):
-        
+
     index = mill_list.index(target)
     num = 10 ** ((index * 3) + 3)
 
@@ -150,19 +160,22 @@ def threads(cookie_count, store_dict):
     
     store_thread = threading.Thread(target=update_store, args=(store_dict, cookie_count))
     upgrade_thread = threading.Thread(target=buy_upgrades)
-    click_thread1 = threading.Thread(target=click_cookie)
-    click_thread2 = threading.Thread(target=click_cookie)
-    click_thread3 = threading.Thread(target=click_cookie)
 
-    click_thread1.start()
-    click_thread2.start()
-    click_thread3.start()
+    click_threads = []
+    for i in range(20):
+        t = threading.Thread(target=click_cookie)
+        click_threads.append(t)
+
+
+    for i in click_threads:
+        i.start()
+
     store_thread.start()
     upgrade_thread.start()
 
-    click_thread1.join()
-    click_thread2.join()
-    click_thread3.join()
+    for i in click_threads:
+        i.join()
+
     store_thread.join()
     upgrade_thread.join()
     
