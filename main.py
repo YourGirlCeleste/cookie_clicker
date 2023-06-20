@@ -7,7 +7,7 @@ import threading
 
 path = 'C:\Program Files (x86)\chromedriver.exe'
 driver = webdriver.Chrome(path)
-mill_list = ['index0', 'million', 'billion', 'trillion']
+mill_list = ['index0', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion']
 
 driver.get("https://orteil.dashnet.org/cookieclicker/")
 
